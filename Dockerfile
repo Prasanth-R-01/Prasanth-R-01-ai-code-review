@@ -17,4 +17,5 @@ COPY sample_code/ ./sample_code/
 RUN pip install --no-cache-dir openai pygithub
 
 
-ENTRYPOINT ["python", "app/review.py"]
+
+ENTRYPOINT ["python", "-m", "app.review"]
