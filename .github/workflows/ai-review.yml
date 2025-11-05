@@ -1,0 +1,40 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # needed to diff commits
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build Docker image
+        run: |
+          docker build -t ai-code-reviewer:latest .
+
+      - name: Run AI reviewer container
+        env:
+          HF_API_KEY: ${{ secrets.HF_API_KEY }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          docker run --rm \
+          -e HF_API_KEY="${HF_API_KEY}" \
+          -e BASE_SHA="${BASE_SHA}" \
+          -e HEAD_SHA="${HEAD_SHA}" \
+          -e GITHUB_TOKEN="${GITHUB_TOKEN}" \
+          -e GITHUB_EVENT_PATH="${GITHUB_EVENT_PATH}" \
+          -v "${{ github.workspace }}:/repo" \
+          -w /repo \
+          ai-code-reviewer:latest
