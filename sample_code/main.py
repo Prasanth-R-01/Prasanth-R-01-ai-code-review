@@ -6,5 +6,5 @@ def calculate_delay(arrival, scheduled):
 def unused_addition(x, y):
     return x+y
 
-def unused_multiplication(x, y):
-    return x*y
+# def unused_multiplication(x, y):
+#     return x*y
